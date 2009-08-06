@@ -14,8 +14,12 @@ class AudioMonitorGui(dbus.service.Object):
 
         gladefile = "audioMonitor.glade"
         windowname = "main_window"
+        abt_dlg_name = "about_dialog"
         self.wTree = gtk.glade.XML(gladefile,windowname)
-        self.window = self.wTree.get_widget("main_window")
+        self.aTree = gtk.glade.XML(gladefile,abt_dlg_name)
+        self.window = self.wTree.get_widget(windowname)
+        self.about_dlg = self.aTree.get_widget(abt_dlg_name)
+#        self.wTree.get_widget()
         self.window.show()
         self.playing = False
         self.audioSrcChan = 0x20;
@@ -38,7 +42,7 @@ class AudioMonitorGui(dbus.service.Object):
                }
     
         self.wTree.signal_autoconnect(dic)
-        self.initialize_pipeline()                      
+ #       self.initialize_pipeline()                      
 
     def initialize_pipeline(self):
         gobject.type_register(SomaAudioEventFilter)
@@ -135,7 +139,6 @@ class AudioMonitorGui(dbus.service.Object):
 
     def quit_menu_selected(self, widget):
         print "Quit application selected"
-
     def about_menu_selected(self, widget):
         print "About selected"
 
@@ -172,7 +175,10 @@ class AudioMonitorGui(dbus.service.Object):
             self.set_pause()
 
     def display_about(self, widget):
-        print "About window should pop up! maybe some day"
+        resp = self.about_dlg.run()
+        if  resp == gtk.RESPONSE_CANCEL:
+            self.about_dlg.hide()
+        print resp
 
     def quit(self, widget):
         print "Main window destroy called by:", widget.get_name()

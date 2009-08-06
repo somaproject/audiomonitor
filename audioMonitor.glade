@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.4.5 on Fri Oct 10 16:54:40 2008 -->
+<?xml version="1.0"?>
 <glade-interface>
+  <!-- interface-requires gtk+ 2.16 -->
+  <!-- interface-naming-policy toplevel-contextual -->
   <widget class="GtkWindow" id="main_window">
     <property name="title" translatable="yes">Audio Monitor</property>
-    <property name="window_position">GTK_WIN_POS_CENTER</property>
+    <property name="window_position">center</property>
     <property name="default_height">1</property>
     <property name="icon">audioMonitor.icon.png</property>
     <signal name="destroy" handler="on_main_window_destroy"/>
@@ -24,8 +24,8 @@
                     <property name="visible">True</property>
                     <child>
                       <widget class="GtkImageMenuItem" id="quit_menu">
+                        <property name="label">gtk-quit</property>
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">gtk-quit</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <signal name="activate" handler="on_quit_menu_activate"/>
@@ -45,8 +45,8 @@
                     <property name="visible">True</property>
                     <child>
                       <widget class="GtkImageMenuItem" id="about_menu">
+                        <property name="label">gtk-about</property>
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">gtk-about</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <signal name="activate" handler="on_about_menu_activate"/>
@@ -59,6 +59,7 @@
           </widget>
           <packing>
             <property name="expand">False</property>
+            <property name="position">0</property>
           </packing>
         </child>
         <child>
@@ -72,8 +73,11 @@
                   <widget class="GtkLabel" id="audio_source_label">
                     <property name="visible">True</property>
                     <property name="label" translatable="yes">Audio Source</property>
-                    <property name="justify">GTK_JUSTIFY_RIGHT</property>
+                    <property name="justify">right</property>
                   </widget>
+                  <packing>
+                    <property name="position">0</property>
+                  </packing>
                 </child>
                 <child>
                   <placeholder/>
@@ -82,13 +86,16 @@
                   <widget class="GtkLabel" id="tetrode_channel_label">
                     <property name="visible">True</property>
                     <property name="label" translatable="yes">Tetrode Channel</property>
-                    <property name="justify">GTK_JUSTIFY_CENTER</property>
+                    <property name="justify">center</property>
                   </widget>
                   <packing>
                     <property name="position">2</property>
                   </packing>
                 </child>
               </widget>
+              <packing>
+                <property name="position">0</property>
+              </packing>
             </child>
             <child>
               <widget class="GtkHBox" id="object_hbox">
@@ -121,6 +128,7 @@
                       </widget>
                       <packing>
                         <property name="padding">10</property>
+                        <property name="position">0</property>
                       </packing>
                     </child>
                     <child>
@@ -128,14 +136,16 @@
                         <property name="visible">True</property>
                         <child>
                           <widget class="GtkButton" id="play_pause_button">
+                            <property name="label" translatable="yes">gtk-media-play</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <property name="label" translatable="yes">gtk-media-play</property>
                             <property name="use_stock">True</property>
-                            <property name="response_id">0</property>
                             <signal name="clicked" handler="on_play_pause_button_clicked"/>
                           </widget>
+                          <packing>
+                            <property name="position">0</property>
+                          </packing>
                         </child>
                         <child>
                           <placeholder/>
@@ -149,6 +159,9 @@
                       <placeholder/>
                     </child>
                   </widget>
+                  <packing>
+                    <property name="position">0</property>
+                  </packing>
                 </child>
                 <child>
                   <placeholder/>
@@ -158,21 +171,24 @@
                     <property name="visible">True</property>
                     <child>
                       <widget class="GtkRadioButton" id="ch0_radio">
+                        <property name="label" translatable="yes">Ch 0</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="label" translatable="yes">Ch 0</property>
-                        <property name="response_id">0</property>
+                        <property name="receives_default">False</property>
                         <property name="active">True</property>
                         <property name="draw_indicator">True</property>
                         <signal name="pressed" handler="on_ch0_radio_pressed"/>
                       </widget>
+                      <packing>
+                        <property name="position">0</property>
+                      </packing>
                     </child>
                     <child>
                       <widget class="GtkRadioButton" id="ch1_radio">
+                        <property name="label" translatable="yes">Ch 1</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="label" translatable="yes">Ch 1</property>
-                        <property name="response_id">0</property>
+                        <property name="receives_default">False</property>
                         <property name="active">True</property>
                         <property name="draw_indicator">True</property>
                         <property name="group">ch0_radio</property>
@@ -184,10 +200,10 @@
                     </child>
                     <child>
                       <widget class="GtkRadioButton" id="ch2_radio">
+                        <property name="label" translatable="yes">Ch 2</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="label" translatable="yes">Ch 2</property>
-                        <property name="response_id">0</property>
+                        <property name="receives_default">False</property>
                         <property name="active">True</property>
                         <property name="draw_indicator">True</property>
                         <property name="group">ch0_radio</property>
@@ -199,10 +215,10 @@
                     </child>
                     <child>
                       <widget class="GtkRadioButton" id="ch3_radio">
+                        <property name="label" translatable="yes">Ch 3</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="label" translatable="yes">Ch 3</property>
-                        <property name="response_id">0</property>
+                        <property name="receives_default">False</property>
                         <property name="active">True</property>
                         <property name="draw_indicator">True</property>
                         <property name="group">ch0_radio</property>
@@ -228,6 +244,40 @@
           </widget>
           <packing>
             <property name="position">1</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="GtkAboutDialog" id="about_dialog">
+    <property name="border_width">5</property>
+    <property name="title" translatable="yes">About Soma-AudioMonitor</property>
+    <property name="type_hint">normal</property>
+    <property name="has_separator">False</property>
+    <property name="program_name">Soma-AudioMonitor</property>
+    <property name="version">0.90</property>
+    <property name="website">http://soma.mit.edu</property>
+    <property name="license" translatable="yes">GPL v2</property>
+    <property name="authors">Stuart Layton &lt;slayton@mit.edu&gt;
+Eric Jonas &lt;jonas@mit.edu&gt;</property>
+    <property name="logo">soma.png</property>
+    <child internal-child="vbox">
+      <widget class="GtkVBox" id="dialog-vbox1">
+        <property name="visible">True</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child>
+          <placeholder/>
+        </child>
+        <child internal-child="action_area">
+          <widget class="GtkHButtonBox" id="dialog-action_area1">
+            <property name="visible">True</property>
+            <property name="layout_style">end</property>
+          </widget>
+          <packing>
+            <property name="expand">False</property>
+            <property name="pack_type">end</property>
+            <property name="position">-1</property>
           </packing>
         </child>
       </widget>
