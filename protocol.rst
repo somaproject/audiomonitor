@@ -20,7 +20,7 @@ Command formats
 -------------------
 The broadcast status/data command: 
 
-CMD = 0x12
+CMD = 0x18
 if data[0] == 0: status update command
    data[1] ==> current status (1 == on, 0 == off)
    data[2] ==> subchannel selected
