@@ -1,10 +1,16 @@
+import pygtk
+pygtk.require("2.0")
+import gobject
+gobject.threads_init ()
+
 import pygst
 pygst.require('0.10')
 import gst, sys
 import gobject
 import errno
 from struct import pack, unpack
-gobject.threads_init ()
+import numpy as np
+
 
 class SomaAudioEventFilter(gst.Element):
 
@@ -38,94 +44,91 @@ class SomaAudioEventFilter(gst.Element):
         gst.info('setting chain/event functions')
         self.sinkpad.set_chain_function(self.chainfunc)
         self.sinkpad.set_event_function(self.eventfunc)
-        self.srccaps =  gst.caps_from_string('audio/x-raw-int,rate=8000,channels=1,endianness=1234,width=16,depth=16,signed=true')
-        self.audioCMD = 0x30;
+        self.srccaps =  gst.caps_from_string('audio/x-raw-int,rate=32000,channels=1,endianness=1234,width=16,depth=16,signed=true')
+        self.AUDIO_BCAST_CMD = 0x18;
         self.lastvalue = 0
         
     def set_audio_src(self, newSrc):
         self.audioSRC = newSrc
 
     def src_getcaps_function(self, *foo):
-        print "src getcaps"
+        print "src_getcaps_function"
         gst.info('src getcaps')
         return self.srccaps
 
     def src_setcaps_function(self, pad, caps):
-        print "src setcaps"
-        gst.info("attempting to src  setcaps:%s" % caps.to_string())
+        print "src_setcaps_function"
+        gst.error("attempting to src  setcaps:%s" % caps.to_string())
         self.srccaps = caps
         return True
     
     def sink_getcaps_function(self, *foo):
-
         gst.info('sink getcaps')
-        capsString = "soma/event,src=%s"  % (self.audioSRC)
-
+        capsString = "soma/event,src=%d"  % (self.audioSRC)
         caps = gst.caps_from_string(capsString)
         return caps
     
     def sink_setcaps_function(self, *foo):
-        print "SomaAudioFilter setcaps"
         gst.info('sink setcaps')
         return True
         
     def chainfunc(self, pad, buffer):
-        #self.info("%s timestamp(buffer):%d" % (pad, buffer.timestamp))
+        """
+        This is the primary function that takes in event buffers and emits
+        audio buffers.
+        
+        """
         buffer_out = ""	
         nEvents = len(buffer)/12;  
-        #gst.info("somaEventFilter.chainfunc length of Buffer IN:" +  str(len(buffer)) + ' with nEvents:' + str(nEvents))
-        
-##         if len(buffer) % 12 != 0:
-##             gst.warn( "Error: nEvents%12 !=0")
-##             return ""
+        gst.info("somaEventFilter.chainfunc length of Buffer IN:" +  str(len(buffer)) + ' with nEvents:' + str(nEvents))
+
+        if len(buffer) % 12 != 0:
+            gst.warn( "Error: nEvents % 12 !=0")
+            return ""
 
         for i in range(nEvents):
             buffer_out = buffer_out + (self.parseEvent( buffer[ (i*12) : (i*12)+12 ] ))
-       
+
         buf = gst.Buffer(buffer_out)
-        caps = self.srccaps
+        caps = self.srccaps 
+
         buf.set_caps(caps)
-        #buf.stamp(buffer)
-        #gst.info("somaEventFilter.chainfunc() returning buffer of len: " + str(len(buffer_out)))
 
         return  self.srcpad.push(buf)
+        
 
     def eventfunc(self, pad, event):
-        print "FILTER ELEMENT GOT EVENT", event.type
+
         self.info("%s event:%r" % (pad, event.type))
     
         return self.srcpad.push_event(event)
     
     def parseEvent(self, buffer):
-##         if len(buffer)<12:
-##             gst.info("ParsingEvents, buffer len <12")
-##             return ''
+        """
+        Take in a 12-byte string and extract out the command
+        to see if it's an audio command. 
 
+        """
+        
         CMD = 'B'
         SRC = 'B'
-        DATA_IN = '>h'
-        DATA_OUT = '<h'
-
-        data = ''
 
         cmd = unpack(CMD, buffer[0:1])[0]
-##         if cmd != self.audioCMD:
-##             gst.info("Parsing Events, CMD IS NOT :" +  str(self.audioCMD) + '  CMD IS:' +  str(cmd)) 
-##             return ""
-
-
-        buffer_out = buffer[4:]
-        #print unpack(">hhhh", buffer[4:])
         
-##      buffer_out = ""        
-##         for i in range(4):
-##             buffer_out += pack(">h",  self.lastvalue)
-
-##             if self.lastvalue == 2**15 -1:
-##                 self.lastvalue = -2**15
-##             else:
-##                  self.lastvalue += 1
-                 
+        if cmd != self.AUDIO_BCAST_CMD:
+            gst.info("Parsing Events, CMD IS NOT :" +  str(self.AUDIO_BCAST_CMD) + '  CMD IS:' +  str(cmd)) 
+            return ""
+        
+        #data = np.fromstring(buffer[4:], dtype=np.int16)
+        #print data
+        #datas = data.astype(np.float)
+        #scaled = (data * 1) # .astype(np.int16)
+        #scaled = scaled.astype(">h")
+        #scaled = np.array([0, 2**15-1, 0, 2**15-1], dtype=np.int16)
+        #buffer_out = scaled.tostring()
+        #gst.error("HELLO") # %s" % data)
+        buffer_out = buffer[4:]
         return buffer_out
 		
 		
+gobject.type_register(SomaAudioEventFilter)

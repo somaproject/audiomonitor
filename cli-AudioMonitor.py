@@ -4,7 +4,7 @@ import gst, sys
 import gobject
 import errno
 from struct import pack, unpack
-from somaEventFilter import SomaAudioEventFilter
+from somaEventFilter import * # SomaAudioEventFilter
 
 gobject.threads_init ()
 
@@ -12,36 +12,43 @@ gobject.threads_init ()
 def main(args):
 
     gobject.type_register(SomaAudioEventFilter)
-    print "SomaAudioEventFilter registered with GObject"
 
     audioSrc = gst.element_factory_make('somaeventsource', 'SomaEventSource')
-
-    print "Created SomaEventSource"
+    #audioSrc = gst.element_factory_make('audiotestsrc', "test src")
 
     gst.info('About to create SomaAudioFilter')
+    #somaAudioEventFilter = PyIdentity()
     somaAudioEventFilter = SomaAudioEventFilter()
     print "Created somaAudioEventFilter"
-    somaAudioEventFilter.set_audio_src(0x20)
+    somaAudioEventFilter.set_audio_src(20)
     
     pipeline = gst.Pipeline()
-    pipeline.add(audioSrc, somaAudioEventFilter)
-    print "somaEventSource and somaAudioEventFilter added to pipeline"
+    pipeline.add(audioSrc)
+    pipeline.add(somaAudioEventFilter)
 
-    finalSink = gst.element_factory_make("alsasink")
+    finalSink = gst.element_factory_make("pulsesink")
     
     #finalSink = gst.element_factory_make("filesink")
     #finalSink.set_property("location", '/tmp/somaeventsourcetest.dat')
 
-    ac = gst.element_factory_make("audioconvert")
-    ars = gst.element_factory_make("audioresample")
+    pipeline.add(finalSink)
+##     ac = gst.element_factory_make("audioconvert")
+##     ars = gst.element_factory_make("audioresample")
     queue = gst.element_factory_make("queue")
     pipeline.add(queue)
-    pipeline.add(ac)
-    pipeline.add(ars)
-    pipeline.add(finalSink)
-    print "Alsasink created and added to pipeline"
+##     pipeline.add(ac)
+##     pipeline.add(ars)
 
-    gst.element_link_many(audioSrc,somaAudioEventFilter,queue, ac, ars, finalSink)
+##     caps = gst.Caps("audio/x-raw-int,rate=44100")
+##     filter = gst.element_factory_make("capsfilter", "filter")
+##     filter.set_property("caps", caps)
+##     pipeline.add(filter)
+    
+    #gst.element_link_many(audioSrc,somaAudioEventFilter,queue, ac, ars, filter, finalSink)
+    #gst.element_link_many(audioSrc,somaAudioEventFilter, ars, filter, finalSink)
+    gst.element_link_many(audioSrc,somaAudioEventFilter, queue, finalSink)
+    #gst.element_link_many(audioSrc, finalSink)
+
     #gst.element_link_many(audioSrc,somaAudioEventFilter, finalSink)
     print "somaAudioFilter linked to finalSink"
 

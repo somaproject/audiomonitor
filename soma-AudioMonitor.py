@@ -42,7 +42,7 @@ class AudioMonitorGui(dbus.service.Object):
                }
     
         self.wTree.signal_autoconnect(dic)
- #       self.initialize_pipeline()                      
+        self.initialize_pipeline()                      
 
     def initialize_pipeline(self):
         gobject.type_register(SomaAudioEventFilter)
@@ -195,6 +195,3 @@ if __name__=='__main__':
     amg.myInit()
     gtk.main()
     
-
-
-
