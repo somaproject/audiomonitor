@@ -13,7 +13,13 @@ import numpy as np
 
 
 class SomaAudioEventFilter(gst.Element):
+    """
+    The Audio Event Filter interfaces with the Audio Monitor
+    protocol.
+    
+    """
 
+    
     _sinkpadtemplate = gst.PadTemplate ("sinkpadtemplate",
                                         gst.PAD_SINK,
                                         gst.PAD_ALWAYS,
@@ -58,7 +64,7 @@ class SomaAudioEventFilter(gst.Element):
 
     def src_setcaps_function(self, pad, caps):
         print "src_setcaps_function"
-        gst.error("attempting to src  setcaps:%s" % caps.to_string())
+        gst.info("attempting to src  setcaps:%s" % caps.to_string())
         self.srccaps = caps
         return True
     
@@ -93,7 +99,7 @@ class SomaAudioEventFilter(gst.Element):
         caps = self.srccaps 
 
         buf.set_caps(caps)
-
+        gst.info("returning %d samples" % len(buffer))
         return  self.srcpad.push(buf)
         
 

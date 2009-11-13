@@ -33,7 +33,8 @@ if data[0] == 1: data command
 
 To change a state, send command 0x30 to the device:
 
-data[0] = 1 to request a change (should always be 1) 
+data[0] = 1 to request a change (should always be 1), 0 is just query
+
 data[1] = set audio transmission on (=1) or off (= 0) 
 data[2] = the channel that is selected / to be selected
 

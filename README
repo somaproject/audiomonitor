@@ -1,0 +1,7 @@
+
+Notes: 
+
+1. Audio Monitor provides a number of object properties: 
+   src: the data source we are using as the audio source
+   chan: the channel in use
+
