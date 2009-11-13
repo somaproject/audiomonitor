@@ -1,11 +1,17 @@
 #include <boost/foreach.hpp>
 
+#include "logging.h"
+using namespace boost::logging; 
+
 #include "audiomon.h"
+
+
 
 AudioMonitor::AudioMonitor(somanetwork::pNetworkInterface_t ni, IAudioSink * sink) :
   pNetwork_(ni), 
   pSink_(sink), 
-  paused_(false)
+  paused_(false),
+  src_(0)
 {
 
   int read_fd = pNetwork_->getEventFifoPipe(); 
@@ -33,6 +39,7 @@ void AudioMonitor::setSource(sn::eventsource_t src) {
     other channels. We should fix this. 
     
   */ 
+  AML_(info) << "AudioMonitor::setSource " << (unsigned int)src << std::endl; 
   disableSource(src_); 
   enableSource(src); 
   src_ = src; 
@@ -55,11 +62,12 @@ void AudioMonitor::play()
 void  AudioMonitor::enableSource(sn::eventsource_t src)
 {
   // FIXME log
+  AML_(debug) << "AudioMonitor::enableSource " << (unsigned int)src << std::endl; 
   
   sn::EventTXList_t etxl; 
 
   sn::EventTX_t etx; 
-  etx.destaddr[src_] = true; 
+  etx.destaddr[src] = true; 
   etx.event.cmd = CMD_AUDIOCOMMAND_TX; 
   etx.event.data[0] = 1; 
   etx.event.data[1] = 1;
@@ -74,6 +82,7 @@ void  AudioMonitor::enableSource(sn::eventsource_t src)
 
 void  AudioMonitor::disableSource(sn::eventsource_t src)
 {
+  AML_(debug) << "AudioMonitor::disableSource " << (unsigned int)src << std::endl; 
   // fixme log
   sn::EventTXList_t etxl; 
 
@@ -149,7 +158,8 @@ void AudioMonitor::newAudioSamplesEvent(const sn::Event_t evt)
   }
   
   pSink_->addSamples(samples); 
-  
+  AML_(debug) << "AudioMonitor::newAudioSamplesEvent, event= " << evt << std::endl; 
+
 }
 
 void AudioMonitor::newAudioStateEvent(const sn::Event_t evt) 
@@ -169,6 +179,12 @@ void AudioMonitor::newAudioStateEvent(const sn::Event_t evt)
   channel_ = evt.data[2]; 
   samplingrate_ = evt.data[3]; 
   statussignal_.emit(is_on, channel_, samplingrate_); 
+  
+  AML_(debug) << "AudioMonitor::newAudioStateEvent, event= " << evt << std::endl; 
+  AML_(info) << "AudioMonitor::newAudioStateEvent, channel ="
+	     << channel_ << " enabled=" << is_on 
+	     << " sampling rate = " << samplingrate_
+	     << std::endl; 
   
 }
   

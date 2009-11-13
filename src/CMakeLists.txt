@@ -14,9 +14,15 @@ set(monitor_SRCS
    test.cc
 )
 
-#set(logging_SRCS
-#  logging/src/logging.cc
-#)
+set(logging_SRCS
+  logging.cc
+  ../logging-ext/src/logging.cc
+)
+
+add_library(logging
+  ${logging_SRCS}
+)
+
 
 add_executable(soma_monitor
   ${monitor_SRCS}
@@ -137,4 +143,22 @@ target_link_libraries(audiomoncli
     ${SOMADEPS_LIBRARIES}
     core
     sinks	
+    logging
+)
+
+
+
+add_executable(audiomonitor
+  main.cc
+  audiomongui.cc
+)
+
+
+target_link_libraries(audiomonitor
+    ${Boost_LIBRARIES} 
+    ${GUIDEPS_LIBRARIES}
+    ${SOMADEPS_LIBRARIES}
+    core
+    sinks	
+    logging
 )

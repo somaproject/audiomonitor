@@ -37,7 +37,8 @@ void stream_write_callback(pa_stream * stream, size_t nbytes, void * userdata)
   float lastval = 0; 
   for(int i = 0; i < SIZEN; ++i) { 
     if (pa->samples_.empty()) { 
-      std::cout << "latency whoops" << std::endl; 
+      // std::cout << "latency whoops" << std::endl; 
+
       fdata[i] = lastval; 
     } else { 
       float val; 

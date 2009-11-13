@@ -27,9 +27,13 @@ public:
 
   size_t pos_; 
 
-//   boost::mutex samples_mutex_; 
+  /* 
+     use a lock-free fifio because you never want to do 
+     anything that might block in a core system thread. 
 
-//   std::list<float> samples_; 
+
+   */ 
+
   boost::lockfree::fifo<float> samples_; 
 
 private:

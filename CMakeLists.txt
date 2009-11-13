@@ -33,6 +33,10 @@ pkg_check_modules(SOMADEPS REQUIRED
   somanetwork-1.0>=1.0
 )
 
+include_directories(logging-ext/boost)
+include_directories(logging-ext/)
+
+
 ENABLE_TESTING()
 
 include_directories(src)

@@ -1,0 +1,81 @@
+This is the soma audio monitor, version two. The original audio monitor
+was written using gstreamer, but that proved too complex of a code path
+to maintain. 
+
+The audio monitor uses the audio monitor protocol (loosly described in
+protocol.rst) to let you hear the output of the acquired data. It does
+this by passing the data to one of two sinks, PulseAudio (available on
+most desktops, currently working) and Jack (super-low-latency, not
+working).
+
+Typical use: 
+
+audiomonitor  --soma-ip=127.0.0.1 
+
+Then pick a channel, pick a source, and hit play [ see TODO for
+missing features]
+
+
+Latency
+==============
+
+Latency in desktop audio is a complex subject, one that's taken a lot
+of effort to better understand. In short, when something happens on
+your hardware, you want to hear it right away. The ear is surprisingly
+sensitive to audio latency. 
+
+The default sound server for the Linux desktop, Pulse Audio, by
+default uses a fairly large internal buffer and thus has a potentially
+very large latency. This is normally fine, nay ideal, for desktop use
+where the primary purpose is playing back music/video -- lower latency
+== more interrupts == more power and greater likelyhood of an
+underrun, or "Glitch".
+
+However, this really sucks for 1. VOIP and 2. Games. Game authors
+employ tricks to fake the latency, and man, with VOIP the audio
+subsystem latency is normally the least of your problems. 
+
+
+By default, the audio monitor uses the PulseAudio backend with the
+default latency, which often is as high as 500 ms. 
+
+Low-Latency Pulse
+------------------
+
+Pulse does try to support low-latency when possible, however, and
+Lennart put a lot of effort into this. That doesn't mean pulse is
+"actually" low latency, but it can get the latencies down to around 50
+ms with the low-latency options enabled in audio monitor and running one
+of the RT kernels. 
+
+See the following links for the new "glitch-free design" and
+additional technical details.
+
+https://tango.0pointer.de/pipermail/pulseaudio-discuss/2008-January/001170.html
+
+http://www.pulseaudio.org/wiki/LatencyControl
+
+http://0pointer.de/blog/projects/pulse-glitch-free.html
+
+
+I just want to stress that this configuration only really provides
+optimal performance with a RT kernel. But thankfully, this is just
+an apt-get away with ubuntu. 
+
+Low-Latency Jack
+-----------------
+Jack is a sound daemon for the honest-to-god low-latency 
+linux audio community. These are the people that, for whatever
+reason, decided that they wanted to do real-time mixing on their
+linux machines. Hardcore. 
+
+Anywho, the Jack people claim to be able to get great latency with
+pretty commodity hardware and kernels. In my experience, this
+was true. The only problem is that setting up jack is quite
+a bit of a pain -- it's a separate sound server, to have it running
+in real-time requires mucking around with some permissions, etc. 
+
+This is all still a largely experimental path. I think that in the
+future, when both Pulse and Jack 1. use RTKit 2. interoperate
+better (by enabling/disabling one another via dbus) the situation
+will be quite a bit better. 

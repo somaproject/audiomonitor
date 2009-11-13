@@ -60,6 +60,7 @@ private:
   
   sigc::signal<void, bool, int, int> statussignal_; 
 
+
 }; 
 
 

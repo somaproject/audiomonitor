@@ -1,0 +1,10 @@
+* Make it install (right now it does not) 
+* Make the volume GUI widget do stuff
+* Make the pause/play button have clearer semantics
+* Plot the current soma time in the status bar for debugging
+* Add additional logging information to the sink
+* Have the pulse sink expose the low-latency API 
+* Respect sampling rate returned from device
+* Interoperate with an additional audio monitor better
+* Make the Jack Sink Work
+
