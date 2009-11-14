@@ -1,4 +1,3 @@
-* Make it install (right now it does not) 
 * Make the volume GUI widget do stuff
 * Make the pause/play button have clearer semantics
 * Plot the current soma time in the status bar for debugging

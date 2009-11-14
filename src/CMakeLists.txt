@@ -162,3 +162,6 @@ target_link_libraries(audiomonitor
     sinks	
     logging
 )
+
+install( TARGETS audiomonitor
+ DESTINATION bin)
