@@ -8,6 +8,7 @@
 
 #include "pulsesink.h"
 #include <boost/lockfree/fifo.hpp>
+#include <boost/lockfree/atomic_int.hpp>
 
 
 class PulseSink : public IAudioSink
@@ -22,7 +23,7 @@ public:
   void run(); 
   void shutdown(); 
   void addSamples(const std::vector<float> & ); 
-
+  int samplesInBuffer(); 
   pa_stream * pa_stream_; 
 
   size_t pos_; 
@@ -36,6 +37,8 @@ public:
 
   boost::lockfree::fifo<float> samples_; 
   float volume_; 
+
+  boost::lockfree::atomic_int<uint32_t> samples_in_buffer_; 
 
 private:
 
@@ -51,7 +54,7 @@ private:
   
   pa_context * pa_context_; 
   
-
+  
 
 }; 
 

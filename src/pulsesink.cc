@@ -1,13 +1,15 @@
 #include <boost/foreach.hpp>
 
+#include "logging.h"
 #include "pulsesink.h"
 
+using namespace boost::logging; 
 
 void stream_success_callback(pa_stream * stream, int success, void * userdata) 
 {
   PulseSink * pa = (PulseSink*)userdata; 
 
-  std::cout << "stream_success_callback" << std::endl; 
+  AML_(debug) << "PulseSink: stream_success_callback"; 
   pa_stream_update_timing_info(pa->pa_stream_, NULL, NULL); 
   
 }
@@ -22,8 +24,8 @@ void stream_write_callback(pa_stream * stream, size_t nbytes, void * userdata)
   int ret = pa_stream_get_latency(stream, &usec, &neg); 
   
   if (pa->pos_ % 60 == 0) { 
-
-    std::cout << " latency = " << usec << " usec" << " " << ret << std::endl; 
+    AML_(info) << "PulseSink latency = " << usec 
+	      << " usec" << " " << ret ; 
   }
   pa->pos_++; 
   void *data;
@@ -37,12 +39,14 @@ void stream_write_callback(pa_stream * stream, size_t nbytes, void * userdata)
   float lastval = 0; 
   for(int i = 0; i < SIZEN; ++i) { 
     if (pa->samples_.empty()) { 
-      // std::cout << "latency whoops" << std::endl; 
+      // std::cout << "latency whoops" ; 
 
       fdata[i] = lastval; 
     } else { 
       float val; 
       pa->samples_.dequeue(&val); 
+      pa->samples_in_buffer_--; 
+
       fdata[i] = val * pa->volume_; 
       lastval = val;       
     }
@@ -75,7 +79,7 @@ void stream_state_callback(pa_stream * stream, void * userdata)
 {
   PulseSink * pa = (PulseSink*)userdata; 
 
-  std::cout << "stream_state_callback" << std::endl; 
+  AML_(debug) << "stream_state_callback" ; 
 
 
 }
@@ -84,7 +88,7 @@ void stream_event_callback(pa_stream * stream, const char * name,
 			   pa_proplist * pl, void * userdata) 
 {
   PulseSink * pa = (PulseSink*)userdata; 
-  std::cout << "stream_event_callback" << std::endl; 
+  AML_(debug) << "stream_event_callback" ; 
   
 }
 
@@ -94,20 +98,20 @@ void context_state_callback(pa_context * c, void * userdata)
   PulseSink * pa = (PulseSink*)userdata; 
   switch (pa_context_get_state(c)) {
   case PA_CONTEXT_CONNECTING:
-    std::cout << "Connecting..." << std::endl; 
+    AML_(debug) << "PulseSink: Connecting..." ; 
     break; 
     
   case PA_CONTEXT_AUTHORIZING:
-    std::cout << "Authorizing..." << std::endl; 
+    AML_(debug) << "PulseSink: Authorizing..." ; 
     break; 
 
   case PA_CONTEXT_SETTING_NAME:
-    std::cout << "Setting name" << std::endl; 
+    AML_(debug) << "PulseSink: Setting name" ; 
     break;
     
   case PA_CONTEXT_READY: {
     
-    std::cout <<  "Connection established." << std::endl; 
+    AML_(debug) <<  "PulseSink: Connection established." ; 
     
 //     stream = pa_stream_new(c, stream_name, &sample_spec, channel_map_set ? &channel_map : NULL);
 //     assert(stream);
@@ -174,7 +178,7 @@ void context_state_callback(pa_context * c, void * userdata)
     break;
   }
   
-  std::cout << "context notify callback " << long(userdata)  << std::endl; 
+  AML_(debug) << "PulseSink: context notify callback " << long(userdata)  ; 
 }
 
 void context_success_callback(pa_context * c, int success, void * userdata)
@@ -188,7 +192,7 @@ void context_event_callback(pa_context * c, const char * name, pa_proplist * p,
 {
   PulseSink * pa = (PulseSink*)userdata; 
 
-  std::cout << "context event callback" << std::endl; 
+  AML_(debug) << "PulseSink: context event callback" ; 
 
 }
 
@@ -198,7 +202,8 @@ PulseSink::PulseSink(pa_mainloop_api * ml):
   pos_(0), 
   pa_mainloop_api_(ml), 
   isGLibMainloop_(0),
-  volume_(1.0)
+  volume_(1.0), 
+  samples_in_buffer_(0)
 {
   // do stuff
   pa_context_ = pa_context_new(pa_mainloop_api_,
@@ -252,7 +257,7 @@ void PulseSink::addSamples(const std::vector<float> & val)
   BOOST_FOREACH(float x, val) { 
     while(!samples_.enqueue(x)) {
     }
-
+    samples_in_buffer_++; 
   }  
   
 }
@@ -275,4 +280,11 @@ PulseSink * PulseSink::createWithGLibMainloop(GMainContext * context)
   ps->pa_glib_mainloop_ = pgml; 
   ps->isGLibMainloop_ = true; 
   return ps; 
+}
+
+int PulseSink::samplesInBuffer()
+{
+  return samples_in_buffer_; 
+
+
 }

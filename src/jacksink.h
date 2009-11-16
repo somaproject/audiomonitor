@@ -34,6 +34,10 @@ public:
   int srate(jack_nframes_t nframes); 
   void error(const char * desc); 
 
+  inline int samplesInBuffer() {
+    throw std::runtime_error("Not implemented"); 
+  }
+
 private:
   jack_client_t * jack_client_;
   jack_port_t *output_port_;

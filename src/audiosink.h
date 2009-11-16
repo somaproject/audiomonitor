@@ -12,7 +12,7 @@ public:
   virtual void run() = 0; 
   virtual void shutdown() = 0; 
   virtual void addSamples(const std::vector<float> & ) = 0; 
-
+  virtual int samplesInBuffer() = 0; 
   virtual ~IAudioSink() {
   }
 }; 

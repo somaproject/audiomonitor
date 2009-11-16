@@ -112,6 +112,7 @@ add_executable(pulsesinktest
 
 target_link_libraries(pulsesinktest
     sinks
+    logging
     ${Boost_LIBRARIES} 
     ${GUIDEPS_LIBRARIES}
     ${SOMADEPS_LIBRARIES}
