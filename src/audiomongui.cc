@@ -14,7 +14,7 @@ AudioMonGui::AudioMonGui(AudioMonitor & am) :
   channel4_("Channel 4"),
   channelC_("Channel C"), 
   playbutton_("Play"), 
-  volume_(0, 100, 5),
+  volume_(0, 150, 5),
   sourcelabel_("source:")
 {
 
@@ -88,7 +88,10 @@ AudioMonGui::AudioMonGui(AudioMonitor & am) :
 
   playbutton_.signal_clicked().connect(sigc::mem_fun(*this, 
 						     &AudioMonGui::on_play_button_clicked)); 
-  
+
+  volume_.signal_value_changed().connect(sigc::mem_fun(*this,
+    &AudioMonGui::on_volume_value_changed));
+
 }
 
 AudioMonGui::~AudioMonGui() 
@@ -147,4 +150,11 @@ void AudioMonGui::on_play_button_clicked()
 {
   audiomonitor_.play(); 
 
+}
+
+void AudioMonGui::on_volume_value_changed()
+{
+  double val = volume_.get_value() / 100.0;
+  audiomonitor_.setVolume(val); 
+  
 }

@@ -66,6 +66,8 @@ private:
   void on_channel_button_clicked();
   void on_play_button_clicked(); 
 
+  void on_volume_value_changed(); 
+  
 };
 
 

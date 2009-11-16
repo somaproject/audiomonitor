@@ -212,3 +212,10 @@ void AudioMonitor::setChannel(int channum)
 }
 
 
+void AudioMonitor::setVolume(double x) 
+{
+  AML_(info) << "AudioMonitor::setVolume, value= " << x << std::endl; 
+  
+  pSink_->setVolume(x); 
+
+}

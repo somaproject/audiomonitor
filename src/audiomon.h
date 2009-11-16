@@ -39,6 +39,7 @@ public:
   // Channel signal is emitted every time status info changes
   sigc::signal<void, bool, int, int> & statusSignal(); 
   
+  void setVolume(double); 
 
 private:
   sn::pNetworkInterface_t pNetwork_; 

@@ -35,6 +35,7 @@ public:
    */ 
 
   boost::lockfree::fifo<float> samples_; 
+  float volume_; 
 
 private:
 
@@ -50,6 +51,8 @@ private:
   
   pa_context * pa_context_; 
   
+
+
 }; 
 
 

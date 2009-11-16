@@ -43,7 +43,7 @@ void stream_write_callback(pa_stream * stream, size_t nbytes, void * userdata)
     } else { 
       float val; 
       pa->samples_.dequeue(&val); 
-      fdata[i] = val; 
+      fdata[i] = val * pa->volume_; 
       lastval = val;       
     }
   }
@@ -197,7 +197,8 @@ void context_event_callback(pa_context * c, const char * name, pa_proplist * p,
 PulseSink::PulseSink(pa_mainloop_api * ml):
   pos_(0), 
   pa_mainloop_api_(ml), 
-  isGLibMainloop_(0)
+  isGLibMainloop_(0),
+  volume_(1.0)
 {
   // do stuff
   pa_context_ = pa_context_new(pa_mainloop_api_,
@@ -221,9 +222,8 @@ PulseSink::~PulseSink()
 }
 
 
-void PulseSink::setVolume(float) {
-  // fixme? 
-
+void PulseSink::setVolume(float v) {
+  volume_ = v; 
 }
 
 
