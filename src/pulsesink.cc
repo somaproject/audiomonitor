@@ -26,6 +26,8 @@ void stream_write_callback(pa_stream * stream, size_t nbytes, void * userdata)
   if (pa->pos_ % 60 == 0) { 
     AML_(info) << "PulseSink latency = " << usec 
 	      << " usec" << " " << ret ; 
+    AML_(info) << "PulseSink Buffer size : "
+	       << pa->samples_in_buffer_;
   }
   pa->pos_++; 
   void *data;
