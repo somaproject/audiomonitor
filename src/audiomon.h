@@ -1,6 +1,10 @@
 #ifndef __AUDIOMON_AUDIOMON_H__
 #define __AUDIOMON_AUDIOMON_H__
 
+#include <boost/filesystem.hpp>
+
+#include <fstream>
+
 #include <somanetwork/networkinterface.h>
 #include "audiosink.h"
 #include <gtkmm.h>
@@ -36,6 +40,11 @@ public:
   static const sn::eventcmd_t CMD_AUDIOBCAST = 0x18; 
   static const sn::eventcmd_t CMD_AUDIOCOMMAND_TX = 0x30; 
 
+  // debugging / logging
+  void enableEventLogging(boost::filesystem::path path); 
+  void disableEventLogging(); 
+
+  
   // Channel signal is emitted every time status info changes
   sigc::signal<void, bool, int, int> & statusSignal(); 
   
@@ -61,7 +70,9 @@ private:
   
   sigc::signal<void, bool, int, int> statussignal_; 
 
-
+  bool isEventLogging_; 
+  boost::filesystem::path logfilename_; 
+  std::fstream logfstream_; 
 }; 
 
 

@@ -36,6 +36,7 @@ int main(int argc, char** argv)
     ("enable-log", po::value<string>()->default_value("warning"), "Enable soma DSP IO debugging at this level")
     ("enable-network-log", po::value<string>()->default_value("warning"), "Enable soma network debugging at this level")
     ("force-reference-time", po::value<long>()->default_value(0), "Force the reference timestamp")
+    ("log-events-to-file", po::value<string>(), "Log all inbound events to file")
     ("audio-sink", po::value<string>()->default_value("pulse"), "Audio sink (pulse, jack)")
     ; 
 
@@ -100,6 +101,10 @@ int main(int argc, char** argv)
 
 
   AudioMonitor  am(pnetwork, as); 
+
+  if(vm.count("log-events-to-file") > 0) { 
+    am.enableEventLogging(vm["log-events-to-file"].as<string>());     
+  }
   
   as->run(); 
 

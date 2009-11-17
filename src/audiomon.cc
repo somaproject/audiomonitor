@@ -11,7 +11,8 @@ AudioMonitor::AudioMonitor(somanetwork::pNetworkInterface_t ni, IAudioSink * sin
   pNetwork_(ni), 
   pSink_(sink), 
   paused_(false),
-  src_(0)
+  src_(0),
+  isEventLogging_(false)
 {
 
   int read_fd = pNetwork_->getEventFifoPipe(); 
@@ -20,14 +21,16 @@ AudioMonitor::AudioMonitor(somanetwork::pNetworkInterface_t ni, IAudioSink * sin
 			    read_fd, Glib::IO_IN);
 
   pNetwork_->run(); 
- 
+  
   
 }
 
 AudioMonitor::~AudioMonitor() {
 
-
+  
   pNetwork_->shutdown(); 
+  disableEventLogging(); 
+
 }
   
 void AudioMonitor::setSource(sn::eventsource_t src) {
@@ -112,6 +115,17 @@ bool AudioMonitor::event_rx_callback(Glib::IOCondition io_condition)
       read(pNetwork_->getEventFifoPipe(), &x, 1); 
       
       sn::pEventPacket_t rdp = pNetwork_->getNewEvents(); 
+
+      // LOGGING TO DISK  // this should be less thant 1.2 MB/sec
+      if(isEventLogging_) {
+	BOOST_FOREACH(sn::Event_t & e, *(rdp->events)) { 
+	  logfstream_.write((char*)&e.cmd, 1); 
+	  logfstream_.write((char*)&e.src, 1); 
+	  logfstream_.write((char*)&e.data[0], 10); 
+	}
+      }
+      
+
       processInboundEvents(rdp->events); 
 
     }
@@ -217,5 +231,23 @@ void AudioMonitor::setVolume(double x)
   AML_(info) << "AudioMonitor::setVolume, value= " << x << std::endl; 
   
   pSink_->setVolume(x); 
+
+}
+
+void AudioMonitor::enableEventLogging(boost::filesystem::path file)
+{
+  isEventLogging_ = true; 
+  logfstream_.open(file.string().c_str(),
+		   std::fstream::out | std::fstream::binary); 
+
+}
+
+void AudioMonitor::disableEventLogging()
+{
+  if(isEventLogging_) { 
+    logfstream_.close(); 
+  }
+  
+  isEventLogging_ = false; 
 
 }
