@@ -136,6 +136,9 @@ bool AudioMonitor::event_rx_callback(Glib::IOCondition io_condition)
 
 void AudioMonitor::processInboundEvents(const sn::pEventList_t & events)
 {
+  recentpeak_ = -1; // total hack! 
+
+  bool received_audio_sample_ = false; 
   BOOST_FOREACH(sn::Event_t & e, *events) {
     // log all event status messages from all sources
     if (e.cmd == CMD_AUDIOBCAST) { 
@@ -143,7 +146,8 @@ void AudioMonitor::processInboundEvents(const sn::pEventList_t & events)
 	if (e.data[0] == 0)  {
 	  newAudioStateEvent(e); 
 	} else { 
-	  newAudioSamplesEvent(e); 
+	  newAudioSamplesEvent(e);
+	  received_audio_sample_ = true; 
 	} 
 	// FIXME : we should log the others anyway
 
@@ -152,7 +156,10 @@ void AudioMonitor::processInboundEvents(const sn::pEventList_t & events)
       }
     } 
   }
-  
+  if (received_audio_sample_) {
+    peaksignal_.emit(float(recentpeak_) / (1 << 15)); 
+  }
+
 }
 
 void AudioMonitor::newAudioSamplesEvent(const sn::Event_t evt)
@@ -164,10 +171,13 @@ void AudioMonitor::newAudioSamplesEvent(const sn::Event_t evt)
   if (paused_) {
     return; 
   }
-  
   std::vector<float> samples(4) ; 
   for(int i = 0; i < 4; i++) {
     int16_t val = (int16_t)evt.data[i+1]; 
+    int16_t abs_val = abs(val); 
+    if (abs_val > recentpeak_) {
+      recentpeak_ = abs_val; 
+    }
     samples[i] = float(val)/ (1<<15); 
   }
   
@@ -192,17 +202,19 @@ void AudioMonitor::newAudioStateEvent(const sn::Event_t evt)
 
   channel_ = evt.data[2]; 
   samplingrate_ = evt.data[3]; 
-  statussignal_.emit(is_on, channel_, samplingrate_); 
+  volscale_ = evt.data[4]; 
+
+  statussignal_.emit(is_on, channel_, samplingrate_, volscale_); 
   
   AML_(debug) << "AudioMonitor::newAudioStateEvent, event= " << evt << std::endl; 
   AML_(info) << "AudioMonitor::newAudioStateEvent, channel ="
 	     << channel_ << " enabled=" << is_on 
 	     << " sampling rate = " << samplingrate_
-	     << std::endl; 
+	     << " volume scale =" << volscale_; 
   
 }
   
-sigc::signal<void, bool, int, int> & AudioMonitor::statusSignal()
+sigc::signal<void, bool, int, int, int> & AudioMonitor::statusSignal()
 {
   return statussignal_;   
 
@@ -210,14 +222,22 @@ sigc::signal<void, bool, int, int> & AudioMonitor::statusSignal()
 
 void AudioMonitor::setChannel(int channum)
 {
+
+  setRemoteState(true, channum, volscale_); 
+  
+}
+
+void AudioMonitor::setRemoteState(bool on, int channum, int volscale)
+{
   sn::EventTXList_t etxl; 
 
   sn::EventTX_t etx; 
   etx.destaddr[src_] = true; 
   etx.event.cmd = CMD_AUDIOCOMMAND_TX; 
   etx.event.data[0] = 1; 
-  etx.event.data[1] = 1; // always on
+  etx.event.data[1] = on; 
   etx.event.data[2] = channum; 
+  etx.event.data[3] = volscale; 
 
   etxl.push_back(etx); 
 
@@ -249,5 +269,19 @@ void AudioMonitor::disableEventLogging()
   }
   
   isEventLogging_ = false; 
+
+}
+
+void AudioMonitor::setVolumeScaling(int scale)
+{
+  
+  setRemoteState(true, channel_, scale); 
+
+}
+
+
+sigc::signal<void, float> & AudioMonitor::peakSignal()
+{
+  return peaksignal_; 
 
 }

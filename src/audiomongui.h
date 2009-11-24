@@ -23,7 +23,6 @@ private:
   
   Gtk::Frame sourceframe_; 
   
-  Gtk::Statusbar statusbar_; 
 
   Gtk::RadioButton::Group channelgroup_; 
   Gtk::RadioButton channel1_; 
@@ -40,11 +39,18 @@ private:
   
   Gtk::ToggleButton playbutton_; 
 
-  Gtk::HScale volume_; 
+  Gtk::Label local_volume_label_; 
+  Gtk::HScale local_volume_; 
+  Gtk::HBox local_volume_hbox_; 
+
+  Gtk::Label remote_volume_label_; 
+  Gtk::HScale remote_volume_; 
+  Gtk::HBox remote_volume_hbox_; 
   
   Gtk::Label sourcelabel_; 
 
-  Gtk::HBox volhbox_; 
+  Gtk::ProgressBar levelbar_; 
+
 
   class SourceModelColumns : public Gtk::TreeModel::ColumnRecord
   {
@@ -66,8 +72,11 @@ private:
   void on_channel_button_clicked();
   void on_play_button_clicked(); 
 
-  void on_volume_value_changed(); 
+  void on_local_volume_value_changed(); 
+  void on_remote_volume_value_changed(); 
   
+  void on_peak_signal(float x); 
+
 };
 
 

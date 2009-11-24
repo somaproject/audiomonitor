@@ -28,6 +28,7 @@ public:
   
   void setSource(sn::eventsource_t src); 
   void setChannel(int channum); 
+  void setVolumeScaling(int scale); 
 
   /*
     Downs network interface, 
@@ -46,8 +47,10 @@ public:
 
   
   // Channel signal is emitted every time status info changes
-  sigc::signal<void, bool, int, int> & statusSignal(); 
+  sigc::signal<void, bool, int, int, int> & statusSignal(); 
   
+  sigc::signal<void, float> & peakSignal(); 
+
   void setVolume(double); 
 
 private:
@@ -68,11 +71,20 @@ private:
   void newAudioSamplesEvent(const sn::Event_t evt); 
   void newAudioStateEvent(const sn::Event_t evt); 
   
-  sigc::signal<void, bool, int, int> statussignal_; 
+  sigc::signal<void, bool, int, int, int> statussignal_; 
 
   bool isEventLogging_; 
   boost::filesystem::path logfilename_; 
   std::fstream logfstream_; 
+
+  int volscale_; 
+
+  void setRemoteState(bool, int chan, int volscale); 
+  
+  int16_t recentpeak_; 
+  sigc::signal<void, float> peaksignal_; 
+
+
 }; 
 
 

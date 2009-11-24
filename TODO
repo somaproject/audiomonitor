@@ -1,4 +1,3 @@
-* Make the volume GUI widget do stuff
 * Make the pause/play button have clearer semantics
 * Plot the current soma time in the status bar for debugging
 * Add additional logging information to the sink
@@ -6,4 +5,4 @@
 * Respect sampling rate returned from device
 * Interoperate with an additional audio monitor better
 * Make the Jack Sink Work
-
+* Fix the status-widget-parts to correctly reflect remote status

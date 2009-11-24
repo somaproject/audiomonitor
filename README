@@ -79,3 +79,9 @@ This is all still a largely experimental path. I think that in the
 future, when both Pulse and Jack 1. use RTKit 2. interoperate
 better (by enabling/disabling one another via dbus) the situation
 will be quite a bit better. 
+
+
+Installation
+=============
+You will need to have installed
+libjack-dev  libpulse-dev  libasound2-dev

@@ -25,6 +25,7 @@ if data[0] == 0: status update command
    data[1] ==> current status (1 == on, 0 == off)
    data[2] ==> subchannel selected
    data[3] ==> unsigned int of sampling rate, rounded to int
+   data[4] ==> volume
 
 if data[0] == 1: data command
    data[1] ==> sample 0...
@@ -37,5 +38,5 @@ data[0] = 1 to request a change (should always be 1), 0 is just query
 
 data[1] = set audio transmission on (=1) or off (= 0) 
 data[2] = the channel that is selected / to be selected
-
+data[3] = volume
 

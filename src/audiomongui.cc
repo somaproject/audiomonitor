@@ -14,7 +14,10 @@ AudioMonGui::AudioMonGui(AudioMonitor & am) :
   channel4_("Channel 4"),
   channelC_("Channel C"), 
   playbutton_("Play"), 
-  volume_(0, 150, 5),
+  local_volume_label_("Local Volume:"), 
+  local_volume_(0, 150, 5),
+  remote_volume_label_("Full scale:"), 
+  remote_volume_(0, 20, 1), 
   sourcelabel_("source:")
 {
 
@@ -25,7 +28,7 @@ AudioMonGui::AudioMonGui(AudioMonitor & am) :
   //vbox_.pack_start(statusbar_); 
   hbox_.pack_start(lefthbox_); 
   
-  hbox_.pack_start(sourceframe_); 
+  hbox_.pack_end(sourceframe_); 
   
   channelgroup_ = channel1_.get_group(); 
   channel2_.set_group(channelgroup_); 
@@ -40,14 +43,15 @@ AudioMonGui::AudioMonGui(AudioMonitor & am) :
   channelvbox_.pack_start(channel4_); 
   channelvbox_.pack_start(channelC_); 
 
-  
-  
+  levelbar_.set_orientation(Gtk::PROGRESS_LEFT_TO_RIGHT); 
+
+ 
   lefthbox_.pack_start(sourceHBox_); 
-  sourceHBox_.pack_end(sourceCombo_); 
   sourceHBox_.pack_start(sourcelabel_);
 
-  //sourceHBox_.pack_start(playbutton_); 
- 
+  sourceHBox_.pack_start(sourceCombo_); 
+  sourceHBox_.pack_start(playbutton_);  
+
   m_refTreeModel = Gtk::ListStore::create(source_cols_);
   sourceCombo_.set_model(m_refTreeModel);
 
@@ -63,13 +67,24 @@ AudioMonGui::AudioMonGui(AudioMonitor & am) :
 
   sourceCombo_.pack_start(source_cols_.m_col_name); 
   
-  volhbox_.pack_start(volume_); 
-  volhbox_.pack_start(playbutton_); 
-  
-  lefthbox_.pack_start(volhbox_); 
-  //left
-  lefthbox_.pack_start(statusbar_); 
+  local_volume_hbox_.pack_start(local_volume_label_); 
+  local_volume_hbox_.pack_start(local_volume_); 
+  local_volume_.set_value_pos(Gtk::POS_RIGHT); 
+  local_volume_.set_size_request(150); 
 
+  remote_volume_hbox_.pack_start(remote_volume_label_); 
+  remote_volume_hbox_.pack_start(remote_volume_); 
+  remote_volume_.set_value_pos(Gtk::POS_RIGHT); 
+  remote_volume_.set_size_request(150); 
+  
+  local_volume_hbox_.pack_start(playbutton_); 
+  
+  lefthbox_.pack_start(local_volume_hbox_); 
+  lefthbox_.pack_start(remote_volume_hbox_); 
+
+  lefthbox_.pack_end(levelbar_); 
+
+  //left
   
   show_all(); 
 
@@ -89,8 +104,14 @@ AudioMonGui::AudioMonGui(AudioMonitor & am) :
   playbutton_.signal_clicked().connect(sigc::mem_fun(*this, 
 						     &AudioMonGui::on_play_button_clicked)); 
 
-  volume_.signal_value_changed().connect(sigc::mem_fun(*this,
-    &AudioMonGui::on_volume_value_changed));
+  local_volume_.signal_value_changed().connect(sigc::mem_fun(*this,
+    &AudioMonGui::on_local_volume_value_changed));
+
+  remote_volume_.signal_value_changed().connect(sigc::mem_fun(*this,
+    &AudioMonGui::on_remote_volume_value_changed));
+
+  audiomonitor_.peakSignal().connect(sigc::mem_fun(*this, 
+ 						   &AudioMonGui::on_peak_signal)); 
 
 }
 
@@ -152,9 +173,25 @@ void AudioMonGui::on_play_button_clicked()
 
 }
 
-void AudioMonGui::on_volume_value_changed()
+void AudioMonGui::on_local_volume_value_changed()
 {
-  double val = volume_.get_value() / 100.0;
+  double val = local_volume_.get_value() / 100.0;
   audiomonitor_.setVolume(val); 
+  
+}
+
+void AudioMonGui::on_remote_volume_value_changed()
+{
+  int val = remote_volume_.get_value(); 
+  AML_(info) << "AudioMonGui:: setting remote volume to " 
+	     << val << std::endl; 
+
+  audiomonitor_.setVolumeScaling(val); 
+  
+}
+
+void AudioMonGui::on_peak_signal(float x)
+{
+  levelbar_.set_fraction(x); 
   
 }

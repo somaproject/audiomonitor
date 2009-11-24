@@ -18,7 +18,7 @@ bool timeout_handler()
 {
   std::cout << "Running timeout handler" << std::endl; 
   
-  pam->setSource(20); 
+  pam->setSource(32);
   pam->setChannel(2); 
   pam->play(); 
 
