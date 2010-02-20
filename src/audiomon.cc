@@ -14,7 +14,7 @@ AudioMonitor::AudioMonitor(somanetwork::pNetworkInterface_t ni, IAudioSink * sin
   src_(0),
   isEventLogging_(false)
 {
-
+  pNetwork_->enableEventRX(); 
   int read_fd = pNetwork_->getEventFifoPipe(); 
   
   Glib::signal_io().connect(sigc::mem_fun(*this, &AudioMonitor::event_rx_callback),
@@ -140,6 +140,8 @@ void AudioMonitor::processInboundEvents(const sn::pEventList_t & events)
 
   bool received_audio_sample_ = false; 
   BOOST_FOREACH(sn::Event_t & e, *events) {
+    if(e.cmd != 0x10) {
+    }
     // log all event status messages from all sources
     if (e.cmd == CMD_AUDIOBCAST) { 
       if (e.src == src_) { 

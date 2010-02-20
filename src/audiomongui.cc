@@ -169,7 +169,11 @@ void AudioMonGui::on_channel_button_clicked()
 
 void AudioMonGui::on_play_button_clicked()
 {
-  audiomonitor_.play(); 
+  if(playbutton_.get_active()) {
+    audiomonitor_.play(); 
+  } else {
+    audiomonitor_.pause();
+  } 
 
 }
 
